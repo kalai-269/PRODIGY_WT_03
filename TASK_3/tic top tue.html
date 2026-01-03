@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔥 Fire Tic Tac Toe</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #1a0000, #ff4500);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+      text-align: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .active {
+      display: flex;
+    }
+
+    h1 {
+      color: #ffd700;
+      text-shadow: 0 0 10px #ff4500, 0 0 20px #ff0000;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 10px;
+      margin: 20px auto;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, #ff8c00, #8b0000);
+      border-radius: 15px;
+      font-size: 2.8em;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 0 15px #ff4500;
+      transition: 0.3s;
+    }
+
+    .cell:hover {
+      background: radial-gradient(circle, #ffa500, #ff0000);
+      transform: scale(1.08);
+      box-shadow: 0 0 25px #ff0000;
+    }
+
+    button {
+      background: linear-gradient(to right, #ff0000, #ff8c00);
+      border: none;
+      padding: 12px 25px;
+      margin: 10px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 1em;
+      color: #fff;
+      font-weight: bold;
+      box-shadow: 0 0 12px #ff4500;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 25px #ff0000;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-size: 1.4em;
+      font-style: italic;
+      color: #ffd700;
+      text-shadow: 0 0 10px #ff4500;
+    }
+
+    /* Fire particles */
+    .followers {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ff4500, #ff0000, transparent);
+      opacity: 0.6;
+      animation: float 7s infinite linear;
+    }
+
+    @keyframes float {
+      from {
+        transform: translateY(100vh) scale(0.8);
+      }
+      to {
+        transform: translateY(-120vh) scale(1.3);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Start Screen -->
+  <div id="startScreen" class="screen active">
+    <h1>🔥 Fire Tic Tac Toe 🔥</h1>
+    <button onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="gameScreen" class="screen">
+    <h1>🔥 Tic Tac Toe 🔥</h1>
+    <div class="board" id="board"></div>
+    <button onclick="resetGame()">♻️ Reset</button>
+    <div id="message"></div>
+  </div>
+
+  <!-- End Screen -->
+  <div id="endScreen" class="screen">
+    <h1 id="endMessage"></h1>
+    <button onclick="restartGame()">Play Again</button>
+  </div>
+
+  <script>
+    const board = document.getElementById("board");
+    const message = document.getElementById("message");
+    const startScreen = document.getElementById("startScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const endScreen = document.getElementById("endScreen");
+    const endMessage = document.getElementById("endMessage");
+
+    let cells = [];
+    let currentPlayer = "X";
+    let gameActive = true;
+
+    // Create cells
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
+      cell.addEventListener("click", () => handleClick(cell, i));
+      board.appendChild(cell);
+      cells.push(cell);
+    }
+
+    function startGame() {
+      startScreen.classList.remove("active");
+      gameScreen.classList.add("active");
+      message.innerText = "🔥 Player X starts!";
+    }
+
+    function handleClick(cell) {
+      if (!gameActive || cell.innerText !== "") return;
+
+      cell.innerText = currentPlayer;
+
+      if (checkWin()) {
+        endGame(`🔥 Player ${currentPlayer} WINS! 🔥`);
+        return;
+      }
+
+      if (cells.every(c => c.innerText !== "")) {
+        endGame("😅 It's a DRAW!");
+        return;
+      }
+
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      message.innerText = `🔥 Player ${currentPlayer}'s turn`;
+    }
+
+    function checkWin() {
+      const winPatterns = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+
+      return winPatterns.some(p => {
+        return cells[p[0]].innerText &&
+               cells[p[0]].innerText === cells[p[1]].innerText &&
+               cells[p[0]].innerText === cells[p[2]].innerText;
+      });
+    }
+
+    function endGame(result) {
+      gameActive = false;
+      gameScreen.classList.remove("active");
+      endScreen.classList.add("active");
+      endMessage.innerText = result;
+    }
+
+    function resetGame() {
+      cells.forEach(c => c.innerText = "");
+      currentPlayer = "X";
+      gameActive = true;
+      message.innerText = "🔥 Game Reset! Player X starts!";
+    }
+
+    function restartGame() {
+      resetGame();
+      endScreen.classList.remove("active");
+      gameScreen.classList.add("active");
+    }
+
+    // Create fire particles
+    function createFollowers() {
+      for (let i = 0; i < 25; i++) {
+        const f = document.createElement("div");
+        f.classList.add("followers");
+        const size = Math.random() * 35 + 15;
+        f.style.width = size + "px";
+        f.style.height = size + "px";
+        f.style.left = Math.random() * 100 + "vw";
+        f.style.animationDuration = (Math.random() * 6 + 4) + "s";
+        document.body.appendChild(f);
+      }
+    }
+
+    createFollowers();
+  </script>
+
+</body>
+</html>
